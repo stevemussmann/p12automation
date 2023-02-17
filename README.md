@@ -6,6 +6,11 @@
 conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl r-tidyverse r-jsonlite r-devtools gfortran
 ```
 
+Activate the conda environment you just created
+```
+conda activate p12Automation
+```
+
 Once installed, open R from the command line and install rubias
 
 ```
