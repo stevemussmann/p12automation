@@ -6,4 +6,4 @@
 
 Once installed, open R from the command line and install rubias
 
-```install.packages("rubias", dependencies=TRUE)
+```install.packages("rubias", dependencies=TRUE)```
