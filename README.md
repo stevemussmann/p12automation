@@ -2,8 +2,14 @@
 
 ## Conda Installation
 
-```conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl r-tidyverse r-jsonlite```
+```conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl r-tidyverse r-jsonlite r-devtools gfortran```
 
 Once installed, open R from the command line and install rubias
 
 ```install.packages("rubias", dependencies=TRUE)```
+
+Download the related package and install from Bash
+```
+wget https://github.com/timothyfrasier/related/raw/master/related_1.0.tar.gz
+R CMD INSTALL related_1.0.tar.gz
+```
