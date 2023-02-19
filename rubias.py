@@ -71,15 +71,75 @@ class Rubias():
 
 	def parseRubiasOutput(self):
 		
+		# extract required data from rubias output and organize into more sensible dataframe
 		newdf = self.rbdf.pivot(index='indiv', columns='collection', values='PofZ').sort_index(axis=0, key=natsort_keygen())
 
-		# custom sort the dataframe so columns are in consistent order
+		# create nested dictionary that will be temporarily added to dataframe for soring so that columns are in consistent order
 		sortOrder={"sortOrder":{"FRHsp":0,"BUTsp":1,"MILsp":2,"DERsp":3,"FRHfl":4,"MILfl":5,"DERfl":6,"MOKfl":7,"BATfl":8,"SAClf":9,"SACwin":10}}
-		df_dict = pandas.DataFrame.from_dict(sortOrder, orient='index')
-		print(df_dict)
+		df_dict = pandas.DataFrame.from_dict(sortOrder, orient='index') # convert sortOrder to pandas dataframe
+
+		# declare lists of reporting unit groups
+		spring=["FRHsp","BUTsp","MILsp","DERsp"]
+		fall=["FRHfl","MILfl","DERfl","MOKfl","BATfl","SAClf"]
+		winter=["SACwin"]
+
 		newdf = pandas.concat([newdf, df_dict]).sort_values(by="sortOrder", axis=1)
 		newdf.drop(labels="sortOrder", axis=0, inplace=True)
 
-		print(self.rbdf)
-		print(newdf)
+		# declare pandas dataframe to hold reporting unit probabilities
+		repunitProb = pandas.DataFrame()
+
+		# sum probabilities for spring, fall, and winter runs
+		repunitProb['Spring'] = newdf[spring].sum(axis=1)
+		repunitProb['Fall'] = newdf[fall].sum(axis=1)
+		repunitProb['Winter'] = newdf[winter].sum(axis=1)
+
+		# make dataframe and populate it with top reporting unit for each sample
+		top = pandas.DataFrame()
+		top['maxcat'] = repunitProb.idxmax(axis=1)
+		top['max'] = repunitProb.max(axis=1)
+
+		# make dataframe and populate it with top three gsi matches for each sample
+		# for this one I need to specify columns and data type,
+		# otherwise it does weird things with NaN values since I skip low probability results
+		topThree = pandas.DataFrame()
+		new_cols = ['first', 'first_prob', 'second', 'second_prob', 'third', 'third_prob']
+		topThree = topThree.reindex(topThree.columns.union(new_cols), axis=1)
+		convert_dict = {'first': str,
+						'first_prob': float,
+						'second': str,
+						'second_prob': float,
+						'third': str,
+						'third_prob': float
+		}
+		topThree=topThree.astype(convert_dict)
+
+		# get top three results
+		for ind,line in newdf.iterrows():
+			results=line.nlargest(n=3)
+			count=0 # counter to put results into first, second, third columns
+			for run,prob in results.items():
+				count=count+1 #increase counter
+				if count==1:
+					topThree.at[ind,'first'] = run
+					topThree.at[ind,'first_prob'] = prob
+				elif count==2:
+					if prob < 0.01:
+						topThree.at[ind,'second'] = pandas.NA
+						topThree.at[ind,'second_prob'] = pandas.NA
+					else:
+						topThree.at[ind,'second'] = run
+						topThree.at[ind,'second_prob'] = prob
+				elif count==3:
+					if prob < 0.01:
+						topThree.at[ind,'third'] = pandas.NA
+						topThree.at[ind,'third_prob'] = pandas.NA
+					else:
+						topThree.at[ind,'third'] = run
+						topThree.at[ind,'third_prob'] = prob
+				else:
+					print("This code should be unreachable. How did you get here?")
+
+		print(top)
+		print(topThree)
 
