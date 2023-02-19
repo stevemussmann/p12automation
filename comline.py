@@ -7,19 +7,22 @@ class ComLine():
 
 	def __init__(self, args):
 		parser = argparse.ArgumentParser()
-		parser._action_groups.pop()
-		required = parser.add_argument_group('required arguments')
-		optional = parser.add_argument_group('optional arguments')
-		required.add_argument("-f", "--infile",
+		parser.add_argument("-f", "--infile",
 							dest='infile',
 							required=True,
 							help="Specify the text file output from Progeny."
 		)
-		required.add_argument("-b", "--baseline",
+		parser.add_argument("-b", "--baseline",
 							dest='baseline',
 							required=True,
 							help="Specify the path to the baseline."
 		)
+		parser.add_argument("-r", "--pathtorcode",
+							dest='pathtorcode',
+							default="/home/mussmann/local/scripts/python/p12automation/rubiasCode.R",
+							help="Provide the path to the R functions for rubias."
+		)
+
 		self.args = parser.parse_args()
 
 		#check if files exist

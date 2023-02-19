@@ -1,6 +1,7 @@
 import pandas
 import collections
 
+from natsort import natsort_keygen
 from rpy2.robjects.packages import STAP
 
 class Rubias():
@@ -10,7 +11,7 @@ class Rubias():
 		self.pdf = df #pandas dataframe derived from progeny output
 		self.nucleotides = {'A':'1', 'C':'2', 'G':'3', 'T':'4', '-':'5', '?':''} #nucleotide map for conversion
 		self.locuslist = loclist # locuslist output from genepop file converter
-		self.rubiasCode = "rubiasCode.R"
+		self.rbdf = pandas.DataFrame() # dataframe that will hold raw rubias output
 
 	def writeRubias(self):
 		print("writing to rubias format")
@@ -39,20 +40,46 @@ class Rubias():
 
 		return filename
 
-	def runRubias(self, base, mix):
+	def runRubias(self, base, mix, ptrc):
 		print("running rubias")
 
 		# read in rubias functions
-		with open(self.rubiasCode, 'r') as f:
-			string = f.read()
-		self.rfunc = STAP(string, 'rbfunc')
+		try:
+			with open(ptrc, 'r') as f:
+				string = f.read()
+			self.rfunc = STAP(string, 'rbfunc')
+		except FileNotFoundError as e:
+			print("")
+			print("File containing R functions was not found:")
+			print(ptrc)
+			print(e)
+			print("Did you specify the correct path and/or file name with the '-r' option?")
+			print("")
+			raise SystemExit
+			
 
 		try:
 			self.rfunc.runRubias(b=base, m=mix, j="outfile.json") #UPDATE - make json output file name customizable
-		except rpy2.rinterface_lib.embedded.RRuntimeError:
-			print("Error in funRubias R function.")
+		except rpy2.rinterface_lib.embedded.RRuntimeError as e:
+			print("")
+			print("Error in funRubias R function:")
+			print(e)
+			print("")
+			raise SystemExit
 
-		df = pandas.read_json("outfile.json")
+		self.rbdf = pandas.read_json("outfile.json")
 
-		return df
+	def parseRubiasOutput(self):
+		
+		newdf = self.rbdf.pivot(index='indiv', columns='collection', values='PofZ').sort_index(axis=0, key=natsort_keygen())
+
+		# custom sort the dataframe so columns are in consistent order
+		sortOrder={"sortOrder":{"FRHsp":0,"BUTsp":1,"MILsp":2,"DERsp":3,"FRHfl":4,"MILfl":5,"DERfl":6,"MOKfl":7,"BATfl":8,"SAClf":9,"SACwin":10}}
+		df_dict = pandas.DataFrame.from_dict(sortOrder, orient='index')
+		print(df_dict)
+		newdf = pandas.concat([newdf, df_dict]).sort_values(by="sortOrder", axis=1)
+		newdf.drop(labels="sortOrder", axis=0, inplace=True)
+
+		print(self.rbdf)
+		print(newdf)
 
