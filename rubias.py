@@ -1,5 +1,6 @@
-import pandas
 import collections
+import datetime
+import pandas
 
 from natsort import natsort_keygen
 from rpy2.robjects.packages import STAP
@@ -12,6 +13,14 @@ class Rubias():
 		self.nucleotides = {'A':'1', 'C':'2', 'G':'3', 'T':'4', '-':'5', '?':''} #nucleotide map for conversion
 		self.locuslist = loclist # locuslist output from genepop file converter
 		self.rbdf = pandas.DataFrame() # dataframe that will hold raw rubias output
+
+		# dataframes for reporting
+		self.dfByPop = pandas.DataFrame()
+		self.dfByRepGroup = pandas.DataFrame()
+		self.dfPrBaseline = pandas.DataFrame()
+		self.dfPrRepGroup = pandas.DataFrame()
+		self.lociScored = pandas.DataFrame()
+		self.printedResults = pandas.DataFrame()
 
 	def writeRubias(self):
 		print("writing to rubias format")
@@ -72,39 +81,44 @@ class Rubias():
 	def parseRubiasOutput(self):
 		
 		# extract required data from rubias output and organize into more sensible dataframe
-		newdf = self.rbdf.pivot(index='indiv', columns='collection', values='PofZ').sort_index(axis=0, key=natsort_keygen())
+		self.dfPrBaseline = self.rbdf.pivot(index='indiv', columns='collection', values='PofZ').sort_index(axis=0, key=natsort_keygen())
+
+		# get number of loci scored as reported by rubias
+		self.lociScored = self.rbdf[['indiv','n_non_miss_loci']].copy()
+		self.lociScored.drop_duplicates(inplace=True) # must drop duplicates before reindexing. Otherwise there will be many non-unique indexes.
+		self.lociScored.set_index('indiv', inplace=True)
 
 		# create nested dictionary that will be temporarily added to dataframe for soring so that columns are in consistent order
 		sortOrder={"sortOrder":{"FRHsp":0,"BUTsp":1,"MILsp":2,"DERsp":3,"FRHfl":4,"MILfl":5,"DERfl":6,"MOKfl":7,"BATfl":8,"SAClf":9,"SACwin":10}}
 		df_dict = pandas.DataFrame.from_dict(sortOrder, orient='index') # convert sortOrder to pandas dataframe
 
 		# declare lists of reporting unit groups
-		spring=["FRHsp","BUTsp","MILsp","DERsp"]
 		fall=["FRHfl","MILfl","DERfl","MOKfl","BATfl","SAClf"]
+		spring=["FRHsp","BUTsp","MILsp","DERsp"]
 		winter=["SACwin"]
 
-		newdf = pandas.concat([newdf, df_dict]).sort_values(by="sortOrder", axis=1)
-		newdf.drop(labels="sortOrder", axis=0, inplace=True)
+		self.dfPrBaseline = pandas.concat([self.dfPrBaseline, df_dict]).sort_values(by="sortOrder", axis=1)
+		self.dfPrBaseline.drop(labels="sortOrder", axis=0, inplace=True)
 
 		# declare pandas dataframe to hold reporting unit probabilities
-		repunitProb = pandas.DataFrame()
+		self.dfPrRepGroup = pandas.DataFrame()
 
 		# sum probabilities for spring, fall, and winter runs
-		repunitProb['Spring'] = newdf[spring].sum(axis=1)
-		repunitProb['Fall'] = newdf[fall].sum(axis=1)
-		repunitProb['Winter'] = newdf[winter].sum(axis=1)
+		self.dfPrRepGroup['Spring'] = self.dfPrBaseline[spring].sum(axis=1)
+		self.dfPrRepGroup['Fall'] = self.dfPrBaseline[fall].sum(axis=1)
+		self.dfPrRepGroup['Winter'] = self.dfPrBaseline[winter].sum(axis=1)
 
 		# make dataframe and populate it with top reporting unit for each sample
-		top = pandas.DataFrame()
-		top['maxcat'] = repunitProb.idxmax(axis=1)
-		top['max'] = repunitProb.max(axis=1)
+		self.dfByRepGroup = pandas.DataFrame()
+		self.dfByRepGroup['maxcat'] = self.dfPrRepGroup.idxmax(axis=1)
+		self.dfByRepGroup['max'] = self.dfPrRepGroup.max(axis=1)
 
 		# make dataframe and populate it with top three gsi matches for each sample
 		# for this one I need to specify columns and data type,
 		# otherwise it does weird things with NaN values since I skip low probability results
-		topThree = pandas.DataFrame()
+		self.dfByPop = pandas.DataFrame()
 		new_cols = ['first', 'first_prob', 'second', 'second_prob', 'third', 'third_prob']
-		topThree = topThree.reindex(topThree.columns.union(new_cols), axis=1)
+		self.dfByPop = self.dfByPop.reindex(self.dfByPop.columns.union(new_cols), axis=1)
 		convert_dict = {'first': str,
 						'first_prob': float,
 						'second': str,
@@ -112,34 +126,78 @@ class Rubias():
 						'third': str,
 						'third_prob': float
 		}
-		topThree=topThree.astype(convert_dict)
+		self.dfByPop=self.dfByPop.astype(convert_dict)
 
 		# get top three results
-		for ind,line in newdf.iterrows():
+		for ind,line in self.dfPrBaseline.iterrows():
 			results=line.nlargest(n=3)
 			count=0 # counter to put results into first, second, third columns
 			for run,prob in results.items():
 				count=count+1 #increase counter
 				if count==1:
-					topThree.at[ind,'first'] = run
-					topThree.at[ind,'first_prob'] = prob
+					self.dfByPop.at[ind,'first'] = run
+					self.dfByPop.at[ind,'first_prob'] = prob
 				elif count==2:
 					if prob < 0.01:
-						topThree.at[ind,'second'] = pandas.NA
-						topThree.at[ind,'second_prob'] = pandas.NA
+						self.dfByPop.at[ind,'second'] = pandas.NA
+						self.dfByPop.at[ind,'second_prob'] = pandas.NA
 					else:
-						topThree.at[ind,'second'] = run
-						topThree.at[ind,'second_prob'] = prob
+						self.dfByPop.at[ind,'second'] = run
+						self.dfByPop.at[ind,'second_prob'] = prob
 				elif count==3:
 					if prob < 0.01:
-						topThree.at[ind,'third'] = pandas.NA
-						topThree.at[ind,'third_prob'] = pandas.NA
+						self.dfByPop.at[ind,'third'] = pandas.NA
+						self.dfByPop.at[ind,'third_prob'] = pandas.NA
 					else:
-						topThree.at[ind,'third'] = run
-						topThree.at[ind,'third_prob'] = prob
+						self.dfByPop.at[ind,'third'] = run
+						self.dfByPop.at[ind,'third_prob'] = prob
 				else:
 					print("This code should be unreachable. How did you get here?")
 
-		print(top)
-		print(topThree)
+		#print(self.dfByRepGroup)
+		#print(self.dfByPop)
 
+	def compileRubiasResults(self, dfSex):
+		print("compiling results")
+
+		# get date and time for entering into excel sheet
+		today = datetime.date.today()
+		yesterday = today - datetime.timedelta(days = 1)
+		tdy = today.strftime("%-m-%-d-%-y")
+		ydy = yesterday.strftime("%-m-%-d-%-y")
+		sent = tdy + " @ 8:30 am"
+		received = ydy + " @ 10:30 am"
+
+		# add dates received and results sent
+		self.printedResults = pandas.DataFrame(index=self.dfByRepGroup.index)
+		self.printedResults['Date/Time Received R1-CGL'] = received
+		self.printedResults['Date LSNFH Hatchery Notified'] = sent
+
+		# add sex to dataframe
+		self.printedResults['Sex'] = dfSex['zOts_SexID_GHpsi-348-A2'].map({'Y':'Male','X':'Female','?':'No Call'})
+
+		# add pop to dataframe
+		self.printedResults['Rubias Pop'] = self.dfByRepGroup['maxcat']
+		self.printedResults['Rubias Probability'] = self.dfByRepGroup['max'].round(4)
+
+		# add genetic call
+		self.printedResults['Genetic Call'] = self.dfByRepGroup['maxcat'].map({'Winter':'WR','Fall':'Non-WR','Spring':'Non-WR'}, na_action='ignore')
+
+		# add number of loci scored
+		self.printedResults['Number of Loci Scored'] = self.lociScored['n_non_miss_loci']
+
+		for index, val in self.printedResults['Number of Loci Scored'].items():
+			if self.printedResults.at[index, 'Sex'] is not "No Call":
+				self.printedResults.at[index, 'Number of Loci Scored'] = str(int(val)+1) + " out of 96"
+			else:
+				self.printedResults.at[index, 'Number of Loci Scored'] = str(val) + " out of 96"
+
+	def writeExcel(self):
+		print("writing to excel")
+		excelFile = "EventN.xlsx"
+		with pandas.ExcelWriter(excelFile) as writer:
+			self.dfByPop.to_excel(writer, sheet_name='Rubias Result by Pop')
+			self.dfByRepGroup.to_excel(writer, sheet_name='Rubias Result by Rep Group')
+			self.dfPrBaseline.to_excel(writer, sheet_name='Rubias Pr(Baseline Pop)')
+			self.dfPrRepGroup.to_excel(writer, sheet_name='Rubias Pr(Rep Group)')
+			self.printedResults.to_excel(writer, sheet_name='Results')

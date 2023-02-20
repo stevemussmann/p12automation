@@ -18,7 +18,9 @@ def main():
 
 	# read file into pandas dataframe
 	prog = Progeny(input.args.infile)
-	df = prog.toPandas()
+	df, sexData = prog.toPandas()
+
+	print(sexData)
 			
 	# convert input file to genepop format
 	gp = Genepop(df)
@@ -30,10 +32,12 @@ def main():
 	rubiasMixture = rb.writeRubias()
 
 	# run rubias
-	rbdf = rb.runRubias(input.args.baseline, rubiasMixture, input.args.pathtorcode)
+	rb.runRubias(input.args.baseline, rubiasMixture, input.args.pathtorcode)
 
 	# parse rubias output
 	rb.parseRubiasOutput()
+	rb.compileRubiasResults(sexData)
+	rb.writeExcel()
 
 main()
 
