@@ -53,7 +53,7 @@ cd $HOME/local/bin
 ln -s $HOME/local/scripts/python/p12automation/p12auto.py
 ```
 
-(Recommended) Modify line 22 of $HOME/local/scripts/python/p12automation/comline.py to provide the default location of the R functions for rubias. If you followed the instructions above, you can change out my user name (mussmann) for yours in the line of code shown below:
+(Recommended) Modify line 22 of `$HOME/local/scripts/python/p12automation/comline.py` to provide the default location of the R functions for rubias. If you don't do this modification then you will need to specify the path to rubiasCode.R every time you run this program. If you followed the instructions above, you should be able to just change out my user name (mussmann) for yours in the line of code shown below:
 
 ```
 default="/home/mussmann/local/scripts/python/p12automation/rubiasCode.R",
