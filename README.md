@@ -75,8 +75,8 @@ p12auto.py -e int -f /path/to/progeny/output -b /path/to/baseline
 
 ## Outputs
 
-The program produces four output files:
+The program produces four output files. In the file names, \<int\> represents the sequential rapid response number (-e input to p12auto.py) and \<year\> represents the current rapid response year:
 * **P12_CHRR_Event_\<int\>_\<year\>Genotypes_and_Results.txt**: This is the primary results file. The first sheet contains fully formatted output ready to be added to the FAX sheet. The remaining four sheets contain rubias output that has been formatted to match data summaries from the program oncor.
-* **P12_CHRR_Event_<int>_<year>.mixture.rubias.txt**: Sample genotypes formatted for input to rubias. This is the genotype file that was processed by the p12auto.py pipeline.
-* **P12_CHRR_Event_<int>_<year>.genepop.txt**: Sample genotypes in genepop format. 
-* **P12_CHRR_Event_<int>_<year>.json**: Rubias results in JSON format. This file was produced only to facilitate transfer of rubias results from R back to Python for data processing. This file can be ignored.
+* **P12_CHRR_Event_\<int\>_\<year\>.mixture.rubias.txt**: Sample genotypes formatted for input to rubias. This is the genotype file that was processed by the p12auto.py pipeline.
+* **P12_CHRR_Event_\<int\>_\<year\>.genepop.txt**: Sample genotypes in genepop format. 
+* **P12_CHRR_Event_\<int\>_\<year\>.json**: Rubias results in JSON format. This file was produced only to facilitate transfer of rubias results from R back to Python for data processing. This file can be ignored.
