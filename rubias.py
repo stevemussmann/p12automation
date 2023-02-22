@@ -8,11 +8,12 @@ from rpy2.robjects.packages import STAP
 class Rubias():
 	'Class for functions pertaining to Rubias'
 
-	def __init__(self, df, loclist):
+	def __init__(self, df, loclist, currEvent):
 		self.pdf = df #pandas dataframe derived from progeny output
 		self.nucleotides = {'A':'1', 'C':'2', 'G':'3', 'T':'4', '-':'5', '?':''} #nucleotide map for conversion
 		self.locuslist = loclist # locuslist output from genepop file converter
 		self.rbdf = pandas.DataFrame() # dataframe that will hold raw rubias output
+		self.ce = currEvent
 
 		# dataframes for reporting
 		self.dfByPop = pandas.DataFrame()
@@ -23,9 +24,9 @@ class Rubias():
 		self.printedResults = pandas.DataFrame()
 
 	def writeRubias(self):
-		print("writing to rubias format")
-		filename = "Event.mixture.rubias.txt"
-		fh = open(filename, 'w')
+		fn = self.ce + ".mixture.rubias.txt"
+		print("Writing in rubias format to ", fn, ".", sep="")
+		fh = open(fn, 'w')
 
 		# write header line
 		fh.write("sample_type\trepunit\tcollection\tindiv")
@@ -47,10 +48,13 @@ class Rubias():
 			fh.write("\n")
 		fh.close()
 
-		return filename
+		return fn
 
 	def runRubias(self, base, mix, ptrc):
-		print("running rubias")
+		print("Running rubias...")
+
+		# make file name for json file
+		fn = self.ce + ".json"
 
 		# read in rubias functions
 		try:
@@ -68,7 +72,7 @@ class Rubias():
 			
 
 		try:
-			self.rfunc.runRubias(b=base, m=mix, j="outfile.json") #UPDATE - make json output file name customizable
+			self.rfunc.runRubias(b=base, m=mix, j=fn)
 		except rpy2.rinterface_lib.embedded.RRuntimeError as e:
 			print("")
 			print("Error in funRubias R function:")
@@ -76,7 +80,15 @@ class Rubias():
 			print("")
 			raise SystemExit
 
-		self.rbdf = pandas.read_json("outfile.json")
+		try:
+			self.rbdf = pandas.read_json(fn)
+		except FileNotFoundError as e:
+			print("")
+			print("JSON file that was supposed to be produced by R code was not found:")
+			print(e)
+			print("")
+			raise SystemExit
+			
 
 	def parseRubiasOutput(self):
 		
@@ -104,27 +116,27 @@ class Rubias():
 		self.dfPrRepGroup = pandas.DataFrame()
 
 		# sum probabilities for spring, fall, and winter runs
-		self.dfPrRepGroup['Spring'] = self.dfPrBaseline[spring].sum(axis=1)
 		self.dfPrRepGroup['Fall'] = self.dfPrBaseline[fall].sum(axis=1)
+		self.dfPrRepGroup['Spring'] = self.dfPrBaseline[spring].sum(axis=1)
 		self.dfPrRepGroup['Winter'] = self.dfPrBaseline[winter].sum(axis=1)
 
 		# make dataframe and populate it with top reporting unit for each sample
 		self.dfByRepGroup = pandas.DataFrame()
-		self.dfByRepGroup['maxcat'] = self.dfPrRepGroup.idxmax(axis=1)
-		self.dfByRepGroup['max'] = self.dfPrRepGroup.max(axis=1)
+		self.dfByRepGroup['Best Estimate'] = self.dfPrRepGroup.idxmax(axis=1)
+		self.dfByRepGroup['Probability'] = self.dfPrRepGroup.max(axis=1)
 
 		# make dataframe and populate it with top three gsi matches for each sample
 		# for this one I need to specify columns and data type,
 		# otherwise it does weird things with NaN values since I skip low probability results
 		self.dfByPop = pandas.DataFrame()
-		new_cols = ['first', 'first_prob', 'second', 'second_prob', 'third', 'third_prob']
+		new_cols = ['Best Estimate', 'Best Probability', '2nd Best Estimate', '2nd Probability', '3rd Best Estimate', '3rd Probability']
 		self.dfByPop = self.dfByPop.reindex(self.dfByPop.columns.union(new_cols), axis=1)
-		convert_dict = {'first': str,
-						'first_prob': float,
-						'second': str,
-						'second_prob': float,
-						'third': str,
-						'third_prob': float
+		convert_dict = {'Best Estimate': str,
+						'Best Probability': float,
+						'2nd Best Estimate': str,
+						'2nd Probability': float,
+						'3rd Best Estimate': str,
+						'3rd Probability': float
 		}
 		self.dfByPop=self.dfByPop.astype(convert_dict)
 
@@ -135,37 +147,41 @@ class Rubias():
 			for run,prob in results.items():
 				count=count+1 #increase counter
 				if count==1:
-					self.dfByPop.at[ind,'first'] = run
-					self.dfByPop.at[ind,'first_prob'] = prob
+					self.dfByPop.at[ind,'Best Estimate'] = run
+					self.dfByPop.at[ind,'Best Probability'] = prob
 				elif count==2:
 					if prob < 0.01:
-						self.dfByPop.at[ind,'second'] = pandas.NA
-						self.dfByPop.at[ind,'second_prob'] = pandas.NA
+						self.dfByPop.at[ind,'2nd Best Estimate'] = pandas.NA
+						self.dfByPop.at[ind,'2nd Probability'] = pandas.NA
 					else:
-						self.dfByPop.at[ind,'second'] = run
-						self.dfByPop.at[ind,'second_prob'] = prob
+						self.dfByPop.at[ind,'2nd Best Estimate'] = run
+						self.dfByPop.at[ind,'2nd Probability'] = prob
 				elif count==3:
 					if prob < 0.01:
-						self.dfByPop.at[ind,'third'] = pandas.NA
-						self.dfByPop.at[ind,'third_prob'] = pandas.NA
+						self.dfByPop.at[ind,'3rd Best Estimate'] = pandas.NA
+						self.dfByPop.at[ind,'3rd Probability'] = pandas.NA
 					else:
-						self.dfByPop.at[ind,'third'] = run
-						self.dfByPop.at[ind,'third_prob'] = prob
+						self.dfByPop.at[ind,'3rd Best Estimate'] = run
+						self.dfByPop.at[ind,'3rd Probability'] = prob
 				else:
 					print("This code should be unreachable. How did you get here?")
 
-		#print(self.dfByRepGroup)
-		#print(self.dfByPop)
-
 	def compileRubiasResults(self, dfSex):
-		print("compiling results")
+		print("Compiling rubias results...")
+		print("")
 
-		# get date and time for entering into excel sheet
+		# get date for entering into excel sheet
 		today = datetime.date.today()
 		yesterday = today - datetime.timedelta(days = 1)
 		tdy = today.strftime("%-m-%-d-%-y")
 		ydy = yesterday.strftime("%-m-%-d-%-y")
-		sent = tdy + " @ 8:30 am"
+
+		# get current time for reporting
+		now = datetime.datetime.now()
+		ct = now.strftime("%I:%M %p").lower()
+
+		# format dates and times
+		sent = tdy + " @ " + ct
 		received = ydy + " @ 10:30 am"
 
 		# add dates received and results sent
@@ -177,27 +193,27 @@ class Rubias():
 		self.printedResults['Sex'] = dfSex['zOts_SexID_GHpsi-348-A2'].map({'Y':'Male','X':'Female','?':'No Call'})
 
 		# add pop to dataframe
-		self.printedResults['Rubias Pop'] = self.dfByRepGroup['maxcat']
-		self.printedResults['Rubias Probability'] = self.dfByRepGroup['max'].round(4)
+		self.printedResults['Rubias Pop'] = self.dfByRepGroup['Best Estimate']
+		self.printedResults['Rubias Probability'] = self.dfByRepGroup['Probability'].round(4)
 
 		# add genetic call
-		self.printedResults['Genetic Call'] = self.dfByRepGroup['maxcat'].map({'Winter':'WR','Fall':'Non-WR','Spring':'Non-WR'}, na_action='ignore')
+		self.printedResults['Genetic Call'] = self.dfByRepGroup['Best Estimate'].map({'Winter':'WR','Fall':'Non-WR','Spring':'Non-WR'}, na_action='ignore')
 
 		# add number of loci scored
 		self.printedResults['Number of Loci Scored'] = self.lociScored['n_non_miss_loci']
 
 		for index, val in self.printedResults['Number of Loci Scored'].items():
-			if self.printedResults.at[index, 'Sex'] is not "No Call":
+			if self.printedResults.at[index, 'Sex'] != "No Call":
 				self.printedResults.at[index, 'Number of Loci Scored'] = str(int(val)+1) + " out of 96"
 			else:
 				self.printedResults.at[index, 'Number of Loci Scored'] = str(val) + " out of 96"
 
 	def writeExcel(self):
-		print("writing to excel")
-		excelFile = "EventN.xlsx"
-		with pandas.ExcelWriter(excelFile) as writer:
-			self.dfByPop.to_excel(writer, sheet_name='Rubias Result by Pop')
-			self.dfByRepGroup.to_excel(writer, sheet_name='Rubias Result by Rep Group')
-			self.dfPrBaseline.to_excel(writer, sheet_name='Rubias Pr(Baseline Pop)')
-			self.dfPrRepGroup.to_excel(writer, sheet_name='Rubias Pr(Rep Group)')
+		fn = self.ce + "Genotypes_and_Results.xlsx"
+		print("Writing final output to excel file: ", fn, ".", sep="")
+		with pandas.ExcelWriter(fn) as writer:
 			self.printedResults.to_excel(writer, sheet_name='Results')
+			self.dfByPop.to_excel(writer, sheet_name='Rubias Result by Pop', float_format="%.4f")
+			self.dfByRepGroup.to_excel(writer, sheet_name='Rubias Result by Rep Group', float_format="%.4f")
+			self.dfPrBaseline.to_excel(writer, sheet_name='Rubias Pr(Baseline Pop)', float_format="%.4f")
+			self.dfPrRepGroup.to_excel(writer, sheet_name='Rubias Pr(Rep Group)', float_format="%.4f")

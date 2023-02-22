@@ -7,6 +7,11 @@ class ComLine():
 
 	def __init__(self, args):
 		parser = argparse.ArgumentParser()
+		parser.add_argument("-e", "--evnum",
+							dest='evnum',
+							required=True,
+							help="Specify the rapid response event number for your current year."
+		)
 		parser.add_argument("-f", "--infile",
 							dest='infile',
 							required=True,

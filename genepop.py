@@ -4,14 +4,16 @@ import collections
 class Genepop():
 	'Class for converting pandas dataframe to Genepop format'
 
-	def __init__(self, df):
+	def __init__(self, df, currEvent):
 		self.pdf = df #pandas dataframe derived from progeny output
 		self.nucleotides = {'A':'101', 'C':'102', 'G':'103', 'T':'104', '-':'105', '?':'000'} #nucleotide map for conversion
 		self.locuslist = list() #maintains list of loci for genepop header
 		self.d = collections.defaultdict(dict) # dictionary to hold converted data for genepop format
+		self.ce = currEvent
 
 	def convert(self):
-		print("converting to genepop format")
+		print("Writing genepop file: ", self.ce, ".genepop.txt.", sep="")
+		print("")
 		for index, row in self.pdf.iterrows():
 			for name, allele in row.items():
 				name = name.replace("-SWFSC96", "")
@@ -26,8 +28,10 @@ class Genepop():
 		return self.locuslist # return the list of loci for use in rubias converter
 
 	def writeGenepop(self):
-		fh = open("EventGenepop.txt", 'w') # UPDATE TO HAVE DYNAMIC FILE NAME
-		fh.write("CHRR FY21 ## M-DD-2021\n") # write header line - UPDATE TO BE DYNAMIC
+		fn = self.ce + ".genepop.txt"
+		fh = open(fn, 'w')
+		fh.write(self.ce)
+		fh.write("\n")
 		for loc in self.locuslist:
 			fh.write(loc)
 			fh.write("\n")
