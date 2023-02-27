@@ -189,7 +189,7 @@ class Rubias():
 
 		# format dates and times
 		sent = tdy + " @ " + ct
-		eceived = ydy + " @ 10:30 am"
+		received = ydy + " @ 10:30 am"
 
 		# add dates received and results sent
 		self.printedResults = pandas.DataFrame(index=self.dfByRepGroup.index)
