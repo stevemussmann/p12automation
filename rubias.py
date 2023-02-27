@@ -1,19 +1,23 @@
 import collections
 import datetime
+import logging # R warnings stfu
 import pandas
 
 from natsort import natsort_keygen
 from rpy2.robjects.packages import STAP
+from rpy2.rinterface_lib.callbacks import logger # R warnings stfu
 
 class Rubias():
 	'Class for functions pertaining to Rubias'
 
-	def __init__(self, df, loclist, currEvent):
+	def __init__(self, df, loclist, currEvent, minLoci, nowarn):
 		self.pdf = df #pandas dataframe derived from progeny output
 		self.nucleotides = {'A':'1', 'C':'2', 'G':'3', 'T':'4', '-':'5', '?':''} #nucleotide map for conversion
 		self.locuslist = loclist # locuslist output from genepop file converter
 		self.rbdf = pandas.DataFrame() # dataframe that will hold raw rubias output
 		self.ce = currEvent
+		self.minLoci = minLoci
+		self.nowarn = nowarn
 
 		# dataframes for reporting
 		self.dfByPop = pandas.DataFrame()
@@ -52,6 +56,7 @@ class Rubias():
 
 	def runRubias(self, base, mix, ptrc):
 		print("Running rubias...")
+		print("Note from Steve: On some systems the next line might say something about an error with systemd. You can [probably] safely ignore this.\n")
 
 		# make file name for json file
 		fn = self.ce + ".json"
@@ -70,6 +75,8 @@ class Rubias():
 			print("")
 			raise SystemExit
 			
+		if self.nowarn == True:
+			logger.setLevel(logging.ERROR) # R warnings stfu
 
 		try:
 			self.rfunc.runRubias(b=base, m=mix, j=fn)
@@ -182,7 +189,7 @@ class Rubias():
 
 		# format dates and times
 		sent = tdy + " @ " + ct
-		received = ydy + " @ 10:30 am"
+		eceived = ydy + " @ 10:30 am"
 
 		# add dates received and results sent
 		self.printedResults = pandas.DataFrame(index=self.dfByRepGroup.index)
@@ -205,15 +212,39 @@ class Rubias():
 		for index, val in self.printedResults['Number of Loci Scored'].items():
 			if self.printedResults.at[index, 'Sex'] != "No Call":
 				self.printedResults.at[index, 'Number of Loci Scored'] = str(int(val)+1) + " out of 96"
+				if int(val)+1 < self.minLoci:
+					self.zeroOut(index, int(val)+1)
 			else:
 				self.printedResults.at[index, 'Number of Loci Scored'] = str(val) + " out of 96"
+				if int(val) < self.minLoci:
+					self.zeroOut(index, int(val))
+
+	def zeroOut(self, ind, loc):
+		print("\n\n")
+		print("WARNING: sample", ind, "had data for", str(loc), "out of 96 loci.")
+		print("The minimum number of loci to provide an assignment result is", str(self.minLoci), "loci.")
+		print("If you want to provide a result for this sample despite this warning, rerun p12auto.py and set the -m option to a lower value.")
+		print("\n\n")
+		
+		# enter 'no data' in appropriate cells
+		self.printedResults.at[ind,'Rubias Pop'] = "No Data"
+		self.printedResults.at[ind,'Rubias Probability'] = "No Data"
+		self.printedResults.at[ind,'Genetic Call'] = "No Data"
 
 	def writeExcel(self):
 		fn = self.ce + "Genotypes_and_Results.xlsx"
 		print("Writing final output to excel file: ", fn, ".", sep="")
-		with pandas.ExcelWriter(fn) as writer:
-			self.printedResults.to_excel(writer, sheet_name='Results')
-			self.dfByPop.to_excel(writer, sheet_name='Rubias Result by Pop', float_format="%.4f")
-			self.dfByRepGroup.to_excel(writer, sheet_name='Rubias Result by Rep Group', float_format="%.4f")
-			self.dfPrBaseline.to_excel(writer, sheet_name='Rubias Pr(Baseline Pop)', float_format="%.4f")
-			self.dfPrRepGroup.to_excel(writer, sheet_name='Rubias Pr(Rep Group)', float_format="%.4f")
+		try:
+			with pandas.ExcelWriter(fn) as writer:
+				self.printedResults.to_excel(writer, sheet_name='Results')
+				self.dfByPop.to_excel(writer, sheet_name='Rubias Result by Pop', float_format="%.4f")
+				self.dfByRepGroup.to_excel(writer, sheet_name='Rubias Result by Rep Group', float_format="%.4f")
+				self.dfPrBaseline.to_excel(writer, sheet_name='Rubias Pr(Baseline Pop)', float_format="%.4f")
+				self.dfPrRepGroup.to_excel(writer, sheet_name='Rubias Pr(Rep Group)', float_format="%.4f")
+		except PermissionError as e:
+			print("")
+			print("Could not get permission to open file for writing:", fn)
+			print("Is it open in another program?")
+			print(e)
+			print("")
+			raise SystemExit

@@ -32,7 +32,7 @@ def main():
 	gp.writeGenepop()
 
 	# convert to rubias format
-	rb = Rubias(df, loclist, currEvent)
+	rb = Rubias(df, loclist, currEvent, input.args.minloci, input.args.nowarn)
 	rubiasMixture = rb.writeRubias()
 
 	# run rubias

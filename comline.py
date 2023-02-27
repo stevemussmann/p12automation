@@ -33,6 +33,11 @@ class ComLine():
 							default="/home/mussmann/local/scripts/python/p12automation/rubiasCode.R",
 							help="Provide the path to the R functions for rubias."
 		)
+		parser.add_argument("-w", "--nowarn",
+							dest='nowarn',
+							action='store_false',
+							help="Supresses R console warnings. Invoke this option to stop supression of R console warnings."
+		)
 
 		self.args = parser.parse_args()
 
