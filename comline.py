@@ -7,6 +7,11 @@ class ComLine():
 
 	def __init__(self, args):
 		parser = argparse.ArgumentParser()
+		parser.add_argument("-b", "--baseline",
+							dest='baseline',
+							required=True,
+							help="Specify the path to the baseline."
+		)
 		parser.add_argument("-e", "--evnum",
 							dest='evnum',
 							required=True,
@@ -17,10 +22,11 @@ class ComLine():
 							required=True,
 							help="Specify the text file output from Progeny."
 		)
-		parser.add_argument("-b", "--baseline",
-							dest='baseline',
-							required=True,
-							help="Specify the path to the baseline."
+		parser.add_argument("-m", "--minloci",
+							dest='minloci',
+							default=80,
+							type=int,
+							help="Provide the minimum number of loci required to report an assignment. Default = 80 loci."
 		)
 		parser.add_argument("-r", "--pathtorcode",
 							dest='pathtorcode',

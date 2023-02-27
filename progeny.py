@@ -19,7 +19,15 @@ class Progeny():
 		df.sort_index(axis=0, inplace=True, key=natsort_keygen() ) # sort rows by sample name
 
 		# move 'Pedigree' back to the first column
-		first_column = df.pop('Pedigree')
+		try:
+			first_column = df.pop('Pedigree')
+		except KeyError as e:
+			print("")
+			print("A column titled 'Pedigree' was expected in the file \"", self.fn, "\" but it was not found", sep="")
+			print("Check to make sure you input the correct file with the -f option, and that it is formatted correctly.")
+			print("KeyError:", e)
+			print("")
+			raise SystemExit
 		df.insert(0, 'Pedigree', first_column)
 
 		# probably need to strip columns with sex data
