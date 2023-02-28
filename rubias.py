@@ -221,17 +221,22 @@ class Rubias():
 
 		# check if top probability for group assignment is below a certain threshold. If so, report the top two. 
 		for index, val in self.printedResults['Rubias Probability'].items():
-			if val < 0.8:
-				results=self.dfPrRepGroup.loc[index].nlargest(n=2)
-				groupList = list()
-				probList = list()
-				for group, prob in results.round(decimals=2).items():
-					groupList.append(str(group))
-					probList.append(str(prob))
-				groupString = "/".join(groupList)
-				probString = "/".join(probList)
-				self.printedResults.at[index,'Rubias Pop'] = groupString
-				self.printedResults.at[index,'Rubias Probability'] = probString
+			try:
+				if val < 0.8:
+					results=self.dfPrRepGroup.loc[index].nlargest(n=2)
+					groupList = list()
+					probList = list()
+					for group, prob in results.round(decimals=2).items():
+						groupList.append(str(group))
+						probList.append(str(prob))
+					groupString = "/".join(groupList)
+					probString = "/".join(probList)
+					self.printedResults.at[index,'Rubias Pop'] = groupString
+					self.printedResults.at[index,'Rubias Probability'] = probString
+			except TypeError as e:
+				print("WARNING: Tried to test value", str(val), "from sample", index, "as a float.")
+				print("You can probably ignore this message unless the final output contains unexpected values.")
+				print("")
 
 	def zeroOut(self, ind, loc):
 		print("\n\n")
