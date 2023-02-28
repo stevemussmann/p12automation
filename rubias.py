@@ -219,6 +219,20 @@ class Rubias():
 				if int(val) < self.minLoci:
 					self.zeroOut(index, int(val))
 
+		# check if top probability for group assignment is below a certain threshold. If so, report the top two. 
+		for index, val in self.printedResults['Rubias Probability'].items():
+			if val < 0.8:
+				results=self.dfPrRepGroup.loc[index].nlargest(n=2)
+				groupList = list()
+				probList = list()
+				for group, prob in results.round(decimals=2).items():
+					groupList.append(str(group))
+					probList.append(str(prob))
+				groupString = "/".join(groupList)
+				probString = "/".join(probList)
+				self.printedResults.at[index,'Rubias Pop'] = groupString
+				self.printedResults.at[index,'Rubias Probability'] = probString
+
 	def zeroOut(self, ind, loc):
 		print("\n\n")
 		print("WARNING: sample", ind, "had data for", str(loc), "out of 96 loci.")
