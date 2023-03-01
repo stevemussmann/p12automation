@@ -56,7 +56,7 @@ class Rubias():
 
 	def runRubias(self, base, mix, ptrc):
 		print("Running rubias...")
-		print("Note from Steve: On some systems the next line might say something about an error with systemd. You can [probably] safely ignore this.\n")
+		print("NOTE: On some systems the next line might say something about an error with systemd. You can [probably] safely ignore this.\n")
 
 		# make file name for json file
 		fn = self.ce + ".json"
@@ -201,7 +201,7 @@ class Rubias():
 
 		# add pop to dataframe
 		self.printedResults['Rubias Pop'] = self.dfByRepGroup['Best Estimate']
-		self.printedResults['Rubias Probability'] = self.dfByRepGroup['Probability'].round(4)
+		self.printedResults['Rubias Probability'] = self.dfByRepGroup['Probability'].round(2)
 
 		# add genetic call
 		self.printedResults['Genetic Call'] = self.dfByRepGroup['Best Estimate'].map({'Winter':'WR','Fall':'Non-WR','Spring':'Non-WR'}, na_action='ignore')
@@ -234,16 +234,16 @@ class Rubias():
 					self.printedResults.at[index,'Rubias Pop'] = groupString
 					self.printedResults.at[index,'Rubias Probability'] = probString
 			except TypeError as e:
-				print("WARNING: Tried to test value", str(val), "from sample", index, "as a float.")
-				print("You can probably ignore this message unless the final output contains unexpected values.")
+				#print("WARNING: Tried to test value", str(val), "from sample", index, "as a float.")
+				#print("You can probably ignore this message unless the final output contains unexpected values.")
 				print("")
 
 	def zeroOut(self, ind, loc):
-		print("\n\n")
+		print("\n")
 		print("WARNING: sample", ind, "had data for", str(loc), "out of 96 loci.")
 		print("The minimum number of loci to provide an assignment result is", str(self.minLoci), "loci.")
 		print("If you want to provide a result for this sample despite this warning, rerun p12auto.py and set the -m option to a lower value.")
-		print("\n\n")
+		print("")
 		
 		# enter 'no data' in appropriate cells
 		self.printedResults.at[ind,'Rubias Pop'] = "No Data"
@@ -255,7 +255,7 @@ class Rubias():
 		print("Writing final output to excel file: ", fn, ".", sep="")
 		try:
 			with pandas.ExcelWriter(fn) as writer:
-				self.printedResults.to_excel(writer, sheet_name='Results')
+				self.printedResults.to_excel(writer, sheet_name='Results', float_format="%.2f")
 				self.dfByPop.to_excel(writer, sheet_name='Rubias Result by Pop', float_format="%.4f")
 				self.dfByRepGroup.to_excel(writer, sheet_name='Rubias Result by Rep Group', float_format="%.4f")
 				self.dfPrBaseline.to_excel(writer, sheet_name='Rubias Pr(Baseline Pop)', float_format="%.4f")
