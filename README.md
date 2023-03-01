@@ -75,7 +75,7 @@ cd $HOME/local/scripts/python/p12automation/
 sed -i 's/mussmann/yourusernamehere/g'
 ```
 
-If you don't feel comfortable running the sed command, then you can open the comline.py file in a text editor and change out my user name (mussmann) for yours in line 33 of code, which should be as shown below:
+Alternatively, if you don't feel comfortable running the sed command, then you can open the comline.py file in a text editor and change out my user name (mussmann) for yours in line 33 of code, which should be as shown below:
 
 ```
 default="/home/mussmann/local/scripts/python/p12automation/rubiasCode.R",
@@ -85,12 +85,12 @@ default="/home/mussmann/local/scripts/python/p12automation/rubiasCode.R",
 
 ## Running p12auto.py
 
-Before running the code, you must first activate the conda environment you created:
+Step 1: Before running the code, you must first activate the conda environment you created:
 ```
 conda activate p12Automation
 ```
 
-You can then run the code with the following command. 
+Step 2: You can then run the code with the following command. 
 * Replace 'int' with the sequential event number for the current rapid response year. 
 * Replace the paths in the command below with the paths to your progeny output text file, and the baseline genotype data in rubias format:
 ```
