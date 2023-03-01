@@ -68,19 +68,11 @@ cd $HOME/local/bin
 ln -s $HOME/local/scripts/python/p12automation/p12auto.py
 ```
 
-(Recommended) Modify line 33 of `$HOME/local/scripts/python/p12automation/comline.py` to provide the default location of the R functions for rubias. If you don't do this modification then you will need to specify the path to rubiasCode.R every time you run this program. Run the following sed command, replacing `yourusernamehere` with your linux username.
+(Recommended) Modify line 33 of `$HOME/local/scripts/python/p12automation/comline.py` to provide the default location of the R functions for rubias. If you don't do this modification then you will need to specify the path to rubiasCode.R every time you run this program. The following sed command should automatically replace my linux username with yours:
 
 ```
-cd $HOME/local/scripts/python/p12automation/
-sed -i 's/mussmann/yourusernamehere/g'
+sed -i "s/mussmann/$USER/g" $HOME/local/scripts/python/p12automation/comline.py
 ```
-
-Alternatively, if you don't feel comfortable running the sed command, then you can open the comline.py file in a text editor and change out my user name (mussmann) for yours in line 33 of code, which should be as shown below:
-
-```
-default="/home/mussmann/local/scripts/python/p12automation/rubiasCode.R",
-```
-
 
 
 ## Running p12auto.py
