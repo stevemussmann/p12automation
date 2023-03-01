@@ -84,28 +84,28 @@ conda activate p12Automation
 
 Step 2: You can then run the code with the following command. 
 * Replace 'int' with the sequential event number for the current rapid response year. 
-* Replace the paths in the command below with the paths to your progeny output text file, and the baseline genotype data in rubias format:
+* Replace the paths in the command below with the paths to your progeny output text file, and the baseline genotype data in rubias format. The 'progeny' file should be the text file output from progeny that has 'Pedigree' as the first column heading
 ```
 p12auto.py -e int -f /path/to/progeny/output -b /path/to/baseline
 ```
 
-The full list of command line options from the `--help` menu is below. Commands in the 'usage' line surrounded by brackets [] are optional:
+The full list of command line options from the `--help` menu is below. 
 ```
 usage: p12auto.py [-h] -b BASELINE -e EVNUM -f INFILE [-m MINLOCI] [-r PATHTORCODE] [-w]
 
 options:
   -h, --help            show this help message and exit
   -b BASELINE, --baseline BASELINE
-                        Specify the path to the baseline.
+                        Specify the path to the baseline (required).
   -e EVNUM, --evnum EVNUM
-                        Specify the rapid response event number for your current year.
+                        Specify the rapid response event number for your current year (required).
   -f INFILE, --infile INFILE
-                        Specify the text file output from Progeny.
+                        Specify the text file output from Progeny (required).
   -m MINLOCI, --minloci MINLOCI
-                        Provide the minimum number of loci required to report an assignment. Default = 80 loci.
+                        Provide the minimum number of loci required to report an assignment. Default = 80 loci (optional).
   -r PATHTORCODE, --pathtorcode PATHTORCODE
-                        Provide the path to the R functions for rubias.
-  -w, --nowarn          Supresses R console warnings. Invoke this option to stop supression of R console warnings.
+                        Provide the path to the R functions for rubias (optional.
+  -w, --nowarn          Supresses R console warnings. Invoke this option to stop supression of R console warnings (optional).
 ```
 
 ## Outputs
