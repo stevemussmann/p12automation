@@ -12,7 +12,7 @@
 <hr>
 
 ## Installation <a name="installation"></a>
-Most of the below (i.e., Conda installation, creation of folders, modification of .bashrc, etc.) only needs to be done once for setup of this package unless you move to a new computer.
+Before proceeding, make sure you have Windows Subsystem for Linux (WSL) installed on your computer. The installation code below has been tested in Ubuntu 22.04. The installation process described below (i.e., Conda installation, creation of folders, modification of .bashrc, etc.) only needs to be done once for setup of this package unless you move to a new computer. 
 
 ### Conda Installation <a name="condainstall"></a>
 Miniconda needs to be installed if it is not already configured on your computer. If you already have Miniconda installed, skip to "Making a Conda Environment"
