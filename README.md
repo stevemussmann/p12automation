@@ -16,6 +16,7 @@ Most of the below (i.e., Conda installation, creation of folders, modification o
 
 ### Conda Installation <a name="condainstall"></a>
 Miniconda needs to be installed if it is not already configured on your computer. If you already have Miniconda installed, skip to "Making a Conda Environment"
+
 Launch Windows Subsystem for Linux (WSL) and download the miniconda installer:
 ```
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
