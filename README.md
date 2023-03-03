@@ -1,9 +1,17 @@
 # p12automation
 
-## Installation
+## Table of Contents
+1. [Installation](#installation)
+    * [Installing and Configuring Miniconda](#condainstall)
+    * [Making a Conda Environment](#condaenv)
+    * [Setting Up the Python Code](#python)
+2. [Running the Program](#running)
+3. [Program Outputs](#outputs)
+
+## Installation <a name="installation"></a>
 Most of the below (i.e., Conda installation, creation of folders, modification of .bashrc, etc.) only needs to be done once for setup of this package unless you move to a new computer.
 
-### Conda Installation
+### Conda Installation <a name="condainstall"></a>
 Miniconda needs to be installed if it is not already configured on your computer. If you already have Miniconda installed, skip to "Making a Conda Environment"
 Launch Windows Subsystem for Linux (WSL) and download the miniconda installer:
 ```
@@ -23,7 +31,7 @@ conda config --set auto_activate_base false
 ```
 Once again, exit and relaunch WSL before proceeding. 
 
-### Making a Conda Environment
+### Making a Conda Environment <a name="condaenv"></a>
 Run the following command to create the p12Automation conda environment:
 ```
 conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl natsort r-tidyverse r-jsonlite r-devtools r-demerelate gfortran
@@ -39,7 +47,7 @@ A conda package does not exist for rubias, so it was not included when you creat
 R --slave -e "install.packages('rubias', dependencies=TRUE, repos='http://cran.rstudio.com')"
 ```
 
-### Python code setup
+### Python code setup <a name="python"></a>
 
 Make a set of folders for local installation
 ```
@@ -76,7 +84,7 @@ sed -i "s/mussmann/$USER/g" $HOME/local/scripts/python/p12automation/comline.py
 ```
 
 
-## Running p12auto.py
+## Running p12auto.py <a name="running"></a>
 
 Step 1: Before running the code, you must first activate the conda environment you created:
 ```
@@ -109,7 +117,7 @@ options:
   -w, --nowarn          Supresses R console warnings. Invoke this option to stop supression of R console warnings (optional).
 ```
 
-## Outputs
+## Outputs <a name="outputs"></a>
 
 The program produces four output files. In the file names, \<int\> represents the sequential rapid response number (-e input to p12auto.py) and \<year\> represents the current rapid response year:
 * **P12_CHRR_Event_\<int\>_\<year\>Genotypes_and_Results.txt**: This is the primary results file. The first sheet contains fully formatted output ready to be added to the FAX sheet. The remaining four sheets contain rubias output that has been formatted to match data summaries from the program oncor.
