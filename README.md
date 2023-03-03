@@ -5,6 +5,7 @@
     * [Installing and Configuring Miniconda](#condainstall)
     * [Making a Conda Environment](#condaenv)
     * [Setting Up the Python Code](#python)
+    * [Make a Folder for Input Files](#quickruns)
 2. [Running the Program](#running)
 3. [Program Outputs](#outputs)
 
@@ -82,16 +83,31 @@ Modify line 33 of `$HOME/local/scripts/python/p12automation/comline.py` to provi
 ```
 sed -i "s/mussmann/$USER/g" $HOME/local/scripts/python/p12automation/comline.py
 ```
+### Make a Folder for Input Files <a name="quickruns"></a>
 
+If you are using Windows Subsystem for Linux, then it can be cumbersome to constantly switch back and forth from Windows to WSL. I recommend making a folder on the desktop where you can run this program, and linking it in Linux.
+Step 1: On your Windows Desktop, create a folder titled 'p12runs' where you will put files for processing with the p12auto.py pipeline.
+Step 2: Link this folder in your home directory under WSL:
+```
+cd ~/
+WINDOWSUSER=`powershell.exe '$env:UserName' | sed 's/\r//g'`
+ln -s /mnt/c/Users/$WINDOWSUSER/Desktop/p12runs
+```
+You should now have a link within your home directory under WSL that provides a shortcut to the 'p12runs' folder you made on your Windows desktop. When you place files in this folder on your Windows desktop, they should be visible within `/home/$USER/p12runs` from WSL. 
 
 ## Running p12auto.py <a name="running"></a>
 
-Step 1: Before running the code, you must first activate the conda environment you created:
+Step 1: Before running the code, you must first open WSL and activate the conda environment you created:
 ```
 conda activate p12Automation
 ```
 
-Step 2: You can then run the code with the following command. 
+Step 2: In Windows, put your input files into the 'p12runs' folder on your Desktop. In WSL, change directories into your 'p12runs' folder:
+```
+cd ~/p12runs
+```
+
+Step 3: You can then run the code with the following command. 
 * Replace 'int' with the sequential event number for the current rapid response year. 
 * Replace the paths in the command below with the paths to your progeny output text file, and the baseline genotype data in rubias format. The 'progeny' file should be the text file output from progeny that has 'Pedigree' as the first column heading
 ```
