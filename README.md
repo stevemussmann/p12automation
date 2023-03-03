@@ -77,7 +77,7 @@ cd $HOME/local/scripts/python/p12automation
 chmod u+x p12auto.py
 ```
 
-If you received the error `server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none` then run the following command: `git config --global http.sslverify false`. Now rerun the above code block starting from the `git clone https://github.com/stevemussmann/p12automation.git` command before proceeding.
+If you received the error `server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none` then run the following command: `git config --global http.sslverify false`. Now rerun the above code block before proceeding.
 
 Link against the p12auto.py script in your $HOME/local/bin folder
 ```
