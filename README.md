@@ -101,7 +101,7 @@ Step 1: On your Windows Desktop, create a folder titled 'p12runs' where you will
 
 Step 2: Link this folder in your home directory under WSL:
 ```
-cd ~/
+cd $HOME
 WINDOWSUSER=`powershell.exe '$env:UserName' | sed 's/\r//g'`
 ln -s /mnt/c/Users/$WINDOWSUSER/Desktop/p12runs
 ```
@@ -118,7 +118,7 @@ conda activate p12Automation
 
 Step 2: In Windows, put your input files into the 'p12runs' folder on your Desktop. In WSL, change directories into your 'p12runs' folder:
 ```
-cd ~/p12runs
+cd $HOME/p12runs
 ```
 
 Step 3: You can then run the code with the following command. 
