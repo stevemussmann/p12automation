@@ -4,7 +4,7 @@
 Most of the below (i.e., Conda installation, creation of folders, modification of .bashrc, etc.) only needs to be done once for setup of this package unless you move to a new computer.
 
 ### Conda Installation
-
+Miniconda needs to be installed if it is not already configured on your computer. If you already have Miniconda installed, skip to "Making a Conda Environment"
 Launch Windows Subsystem for Linux (WSL) and download the miniconda installer:
 ```
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -21,10 +21,12 @@ Exit and relaunch WSL before proceeding. When your terminal window reopens, run 
 ```
 conda config --set auto_activate_base false
 ```
+Once again, exit and relaunch WSL before proceeding. 
 
-Once again, exit and relaunch WSL before proceeding. Then run the following command to create the p12Automation conda environment:
+### Making a Conda Environment
+Run the following command to create the p12Automation conda environment:
 ```
-conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl natsort r-tidyverse r-jsonlite r-devtools gfortran
+conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl natsort r-tidyverse r-jsonlite r-devtools r-demerelate gfortran
 ```
 
 Activate the conda environment you just created
