@@ -32,10 +32,9 @@ Activate the conda environment you just created
 conda activate p12Automation
 ```
 
-Once installed, open R from the command line and install rubias
-
+A conda package does not exist for rubias, so it was not included when you created the conda environment. Install it with this command:
 ```
-install.packages("rubias", dependencies=TRUE, repos='http://cran.rstudio.com/')
+R --slave -e "install.packages('rubias', dependencies=TRUE, repos='http://cran.rstudio.com')"
 ```
 
 ### Python code setup
