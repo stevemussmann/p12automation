@@ -86,7 +86,9 @@ sed -i "s/mussmann/$USER/g" $HOME/local/scripts/python/p12automation/comline.py
 ### Make a Folder for Input Files <a name="quickruns"></a>
 
 If you are using Windows Subsystem for Linux, then it can be cumbersome to constantly switch back and forth from Windows to WSL. I recommend making a folder on the desktop where you can run this program, and linking it in Linux.
+
 Step 1: On your Windows Desktop, create a folder titled 'p12runs' where you will put files for processing with the p12auto.py pipeline.
+
 Step 2: Link this folder in your home directory under WSL:
 ```
 cd ~/
