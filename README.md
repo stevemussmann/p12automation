@@ -9,6 +9,8 @@
 2. [Running the Program](#running)
 3. [Program Outputs](#outputs)
 
+<hr>
+
 ## Installation <a name="installation"></a>
 Most of the below (i.e., Conda installation, creation of folders, modification of .bashrc, etc.) only needs to be done once for setup of this package unless you move to a new computer.
 
@@ -32,6 +34,8 @@ conda config --set auto_activate_base false
 ```
 Once again, exit and relaunch WSL before proceeding. 
 
+<hr>
+
 ### Making a Conda Environment <a name="condaenv"></a>
 Run the following command to create the p12Automation conda environment:
 ```
@@ -47,6 +51,8 @@ A conda package does not exist for rubias, so it was not included when you creat
 ```
 R --slave -e "install.packages('rubias', dependencies=TRUE, repos='http://cran.rstudio.com')"
 ```
+
+<hr>
 
 ### Python code setup <a name="python"></a>
 
@@ -83,6 +89,9 @@ Modify line 33 of `$HOME/local/scripts/python/p12automation/comline.py` to provi
 ```
 sed -i "s/mussmann/$USER/g" $HOME/local/scripts/python/p12automation/comline.py
 ```
+
+<hr>
+
 ### Make a Folder for Input Files <a name="quickruns"></a>
 
 If you are using Windows Subsystem for Linux, then it can be cumbersome to constantly switch back and forth from Windows to WSL. I recommend making a folder on the desktop where you can run this program, and linking it in Linux.
@@ -96,6 +105,8 @@ WINDOWSUSER=`powershell.exe '$env:UserName' | sed 's/\r//g'`
 ln -s /mnt/c/Users/$WINDOWSUSER/Desktop/p12runs
 ```
 You should now have a link within your home directory under WSL that provides a shortcut to the 'p12runs' folder you made on your Windows desktop. When you place files in this folder on your Windows desktop, they should be visible within `/home/$USER/p12runs` from WSL. 
+
+<hr>
 
 ## Running p12auto.py <a name="running"></a>
 
@@ -134,6 +145,8 @@ options:
                         Provide the path to the R functions for rubias (optional.
   -w, --nowarn          Supresses R console warnings. Invoke this option to stop supression of R console warnings (optional).
 ```
+
+<hr>
 
 ## Outputs <a name="outputs"></a>
 
