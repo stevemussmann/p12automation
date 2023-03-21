@@ -6,8 +6,9 @@
     * [Making a Conda Environment](#condaenv)
     * [Setting Up the Python Code](#python)
     * [Make a Folder for Input Files](#quickruns)
-2. [Running the Program](#running)
-3. [Program Outputs](#outputs)
+2. [Updates](#update)
+3. [Running the Program](#running)
+4. [Program Outputs](#outputs)
 
 <hr>
 
@@ -108,6 +109,20 @@ ln -s /mnt/c/Users/$WINDOWSUSER/Desktop/p12runs
 You should now have a link within your home directory under WSL that provides a shortcut to the 'p12runs' folder you made on your Windows desktop. When you place files in this folder on your Windows desktop, they should be visible within `/home/$USER/p12runs` from WSL. 
 
 <hr>
+
+## Updates <a name="update"></a>
+
+If you need to update to a new version of this pipeline, then just delete the old version, pull the new version from github, and make sure you update the link to the rubias code. Nothing else should need to be done.
+```
+cd $HOME/local/scripts/python
+rm -r p12automation/
+git clone https://github.com/stevemussmann/p12automation.git
+cd $HOME/local/scripts/python/p12automation
+chmod u+x p12auto.py
+sed -i "s/mussmann/$USER/g" $HOME/local/scripts/python/p12automation/comline.py
+```
+
+If you received the error `server certificate verification failed. CAfile: /etc/ssl/certs/ca-certificates.crt CRLfile: none` then run the following command: `git config --global http.sslverify false`. Now rerun the above code block. 
 
 ## Running p12auto.py <a name="running"></a>
 
