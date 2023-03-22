@@ -115,7 +115,7 @@ You should now have a link within your home directory under WSL that provides a 
 If you need to update to a new version of this pipeline, then just delete the old version, pull the new version from github, and make sure you update the link to the rubias code. Nothing else should need to be done.
 ```
 cd $HOME/local/scripts/python
-rm -r p12automation/
+rm -rf p12automation/
 git clone https://github.com/stevemussmann/p12automation.git
 cd $HOME/local/scripts/python/p12automation
 chmod u+x p12auto.py
