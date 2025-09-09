@@ -41,7 +41,7 @@ Once again, exit and relaunch WSL before proceeding.
 ### Making a Conda Environment <a name="condaenv"></a>
 Run the following command to create the p12Automation conda environment:
 ```
-conda create -n p12Automation -c conda-forge -c bioconda -c r r=4.2 python=3 pandas rpy2 openpyxl natsort r-tidyverse r-jsonlite r-devtools r-demerelate gfortran
+conda create -n p12Automation -c conda-forge -c bioconda -c r r=4 python=3 pandas rpy2 openpyxl natsort r-tidyverse r-jsonlite r-devtools r-demerelate gfortran
 ```
 
 Activate the conda environment you just created
